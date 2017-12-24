@@ -12,11 +12,17 @@ output_prefix='@prefix_highlight_output_prefix'
 output_suffix='@prefix_highlight_output_suffix'
 show_copy_config='@prefix_highlight_show_copy_mode'
 copy_attr_config='@prefix_highlight_copy_mode_attr'
+copy_icon='@prefix_highlight_copy_icon'
+prefix_icon='@prefix_highlight_prefix_icon'
+visual_mode='@prefix_highlight_visual_mode'
 
 # Defaults
 default_fg='colour231'
 default_bg='colour04'
 default_copy_attr='fg=default,bg=yellow'
+default_copy_icon=''
+default_prefix_icon=''
+default_visual_mode='label' # label, icon, all
 
 tmux_option() {
     local -r value=$(tmux show-option -gqv "$1")
@@ -38,11 +44,25 @@ highlight() {
         copy_highlight="$5" \
         output_prefix="$6" \
         output_suffix="$7" \
+        copy_icon="$8" \
+        prefix_icon="$9" \
+        visual_mode="${10}" \
         copy="Copy"
 
+    if [[ "label" = "$visual_mode" ]]; then
+        local -r prefix_with_icon="$prefix"
+        local -r copy_with_icon="$copy"
+    elif [[ "icon" = "$visual_mode" ]]; then
+        local -r prefix_with_icon="$prefix_icon"
+        local -r copy_with_icon="$copy_icon"
+    else
+        local -r prefix_with_icon="$prefix_icon $prefix"
+        local -r copy_with_icon="$copy_icon $copy"
+    fi
+
     local -r status_value="$(tmux_option "$status")"
-    local -r prefix_with_optional_affixes="$output_prefix$prefix$output_suffix"
-    local -r copy_with_optional_affixes="$output_prefix$copy$output_suffix"
+    local -r prefix_with_optional_affixes="$output_prefix$prefix_with_icon$output_suffix"
+    local -r copy_with_optional_affixes="$output_prefix$copy_with_icon$output_suffix"
 
     if [[ "on" = "$show_copy_mode" ]]; then
         local -r fallback="${copy_highlight}#{?pane_in_mode,$copy_with_optional_affixes,}"
@@ -62,6 +82,9 @@ main() {
         show_copy_mode=$(tmux_option "$show_copy_config" "off") \
         output_prefix=$(tmux_option "$output_prefix" " ") \
         output_suffix=$(tmux_option "$output_suffix" " ") \
+        copy_icon=$(tmux_option "$copy_icon" "$default_copy_icon") \
+        prefix_icon=$(tmux_option "$prefix_icon" "$default_prefix_icon") \
+        visual_mode=$(tmux_option "$visual_mode" "$default_visual_mode") \
         copy_attr=$(tmux_option "$copy_attr_config" "$default_copy_attr")
 
     local -r short_prefix=$(
@@ -78,7 +101,10 @@ main() {
               "$show_copy_mode" \
               "$copy_highlight" \
               "$output_prefix" \
-              "$output_suffix"
+              "$output_suffix" \
+              "$copy_icon" \
+              "$prefix_icon" \
+              "$visual_mode"
 
     highlight "status-left" \
               "$short_prefix" \
@@ -86,7 +112,10 @@ main() {
               "$show_copy_mode" \
               "$copy_highlight" \
               "$output_prefix" \
-              "$output_suffix"
+              "$output_suffix" \
+              "$copy_icon" \
+              "$prefix_icon" \
+              "$visual_mode"
 }
 
 main

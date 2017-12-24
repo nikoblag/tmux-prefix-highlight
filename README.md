@@ -72,13 +72,16 @@ set -g @prefix_highlight_show_copy_mode 'on'
 set -g @prefix_highlight_copy_mode_attr 'fg=black,bg=yellow,bold' # default is 'fg=default,bg=yellow'
 ```
 
-Additionally, the plugin can be configured to attach optional affixes to the
+Additionally, the plugin can be configured to attach optional affixes and icon to the
 value contained in `#{prefix_highlight}`.
-(e.g. `< ^B >`)
+(e.g. `<  ^B >`)
 
 ```tmux.conf
 set -g @prefix_highlight_output_prefix '< '
 set -g @prefix_highlight_output_suffix ' >'
+set -g @prefix_highlight_copy_icon ""
+set -g @prefix_highlight_prefix_icon ""
+set -g @prefix_highlight_visual_mode "all" # supported modes: icon, label, all
 ```
 
 ### License
